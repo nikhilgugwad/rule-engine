@@ -17,3 +17,28 @@ def create_rule_ast(rule_string):
     # Create operand node (e.g., age > 30)
     operand_node = ASTNode(node_type="operand", value=f"{tokens[0]} {tokens[1]} {tokens[2]}")
     return operand_node
+
+def combine_rules(ast_nodes, operator):
+    """
+    Combine multiple AST nodes using a logical operator.
+
+    Args:
+        ast_nodes (list): A list of ASTNode objects (sub-trees).
+        operator (str): Logical operator to combine ('AND' or 'OR').
+
+    Returns:
+        ASTNode: The root node of the combined AST.
+    """
+    if not ast_nodes:
+        raise ValueError("No AST nodes provided for combination.")
+    if operator not in {"AND", "OR"}:
+        raise ValueError("Operator must be 'AND' or 'OR'.")
+    
+    # Starting with the first node as the base tree.
+    combined_tree = ast_nodes[0]
+
+    # Iteratively combining with the remaining nodes.
+    for node in ast_nodes[1:]:
+        combined_tree = ASTNode(node_type="operator", value=operator, left=combined_tree, right=node)
+
+    return combined_tree
