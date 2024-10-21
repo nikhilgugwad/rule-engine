@@ -1,6 +1,7 @@
 from backend.ast import ASTNode
+from typing import List
 
-def create_rule_ast(rule_string):
+def create_rule_ast(rule_string: str) -> ASTNode:
     """
     Create an AST from a rule string.
 
@@ -15,15 +16,15 @@ def create_rule_ast(rule_string):
         raise ValueError("Invalid rule format. Expected format: 'attribute operator value'.")
 
     # Create operand node (e.g., age > 30)
-    operand_node = ASTNode(node_type="operand", value=f"{tokens[0]} {tokens[1]} {tokens[2]}")
+    operand_node = ASTNode(node_type="operand", value=rule_string)  # Use full rule string
     return operand_node
 
-def combine_rules(ast_nodes, operator):
+def combine_rules(ast_nodes: List[ASTNode], operator: str) -> ASTNode:
     """
     Combine multiple AST nodes using a logical operator.
 
     Args:
-        ast_nodes (list): A list of ASTNode objects (sub-trees).
+        ast_nodes (List[ASTNode]): A list of ASTNode objects (sub-trees).
         operator (str): Logical operator to combine ('AND' or 'OR').
 
     Returns:
@@ -34,11 +35,10 @@ def combine_rules(ast_nodes, operator):
     if operator not in {"AND", "OR"}:
         raise ValueError("Operator must be 'AND' or 'OR'.")
 
-    # Combine nodes pairwise, preserving operand order.
+    # Start combining nodes from the first one.
     combined_tree = ast_nodes[0]
 
     for node in ast_nodes[1:]:
-        # Each new combination wraps the previous tree on the left.
         combined_tree = ASTNode(
             node_type="operator",
             value=operator,

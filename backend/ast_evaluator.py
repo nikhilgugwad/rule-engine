@@ -1,4 +1,6 @@
-def evaluate_rule(ast_node, data):
+from typing import Any, Dict, Tuple
+
+def evaluate_rule(ast_node, data: Dict[str, Any]) -> bool:
     """
     Recursively evaluate the given AST node against the provided data.
 
@@ -9,14 +11,13 @@ def evaluate_rule(ast_node, data):
     Returns:
         bool: True if the rule matches the data, otherwise False.
     """
-    if ast_node.node_type == "operator":  # Use dot notation for accessing node attributes
+    if ast_node.node_type == "operator":
         left_result = evaluate_rule(ast_node.left, data)
         right_result = evaluate_rule(ast_node.right, data)
 
-        if ast_node.value == "AND":
-            return left_result and right_result
-        elif ast_node.value == "OR":
-            return left_result or right_result
+        return (left_result and right_result) if ast_node.value == "AND" else \
+               (left_result or right_result) if ast_node.value == "OR" else \
+               ValueError("Unsupported operator")
 
     elif ast_node.node_type == "operand":
         # Parse the condition to extract attribute, operator, and value
@@ -26,9 +27,7 @@ def evaluate_rule(ast_node, data):
 
     raise ValueError("Invalid AST node type")
 
-
-
-def parse_operand(condition):
+def parse_operand(condition: str) -> Tuple[str, str, Any]:
     """
     Parse the operand node's condition (e.g., 'age > 30').
 
@@ -39,17 +38,18 @@ def parse_operand(condition):
         tuple: (attribute, operator, value) extracted from the condition.
     """
     parts = condition.split()
-    attribute = parts[0]
-    operator = parts[1]
+    if len(parts) != 3:
+        raise ValueError("Invalid operand condition format. Expected format: 'attribute operator value'.")
 
+    attribute, operator = parts[0], parts[1]
     # Convert '=' to '=='
-    if operator == '=':
-        operator = '=='
-        
+    operator = '==' if operator == '=' else operator
+    # Determine the value type
     value = int(parts[2]) if parts[2].isdigit() else parts[2].strip("'")
+
     return attribute, operator, value
 
-def compare(attribute, operator, value, data):
+def compare(attribute: str, operator: str, value: Any, data: Dict[str, Any]) -> bool:
     """
     Compare the attribute from the data with the given value using the operator.
 
