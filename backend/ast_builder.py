@@ -33,12 +33,17 @@ def combine_rules(ast_nodes, operator):
         raise ValueError("No AST nodes provided for combination.")
     if operator not in {"AND", "OR"}:
         raise ValueError("Operator must be 'AND' or 'OR'.")
-    
-    # Starting with the first node as the base tree.
+
+    # Combine nodes pairwise, preserving operand order.
     combined_tree = ast_nodes[0]
 
-    # Iteratively combining with the remaining nodes.
     for node in ast_nodes[1:]:
-        combined_tree = ASTNode(node_type="operator", value=operator, left=combined_tree, right=node)
+        # Each new combination wraps the previous tree on the left.
+        combined_tree = ASTNode(
+            node_type="operator",
+            value=operator,
+            left=combined_tree,
+            right=node
+        )
 
     return combined_tree

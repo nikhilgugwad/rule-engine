@@ -9,7 +9,7 @@ def evaluate_rule(ast_node, data):
     Returns:
         bool: True if the rule matches the data, otherwise False.
     """
-    if ast_node.node_type == "operator":  # Use dot notation
+    if ast_node.node_type == "operator":  # Use dot notation for accessing node attributes
         left_result = evaluate_rule(ast_node.left, data)
         right_result = evaluate_rule(ast_node.right, data)
 
@@ -17,11 +17,15 @@ def evaluate_rule(ast_node, data):
             return left_result and right_result
         elif ast_node.value == "OR":
             return left_result or right_result
-    elif ast_node.node_type == "operand":  # Use dot notation
-        # Evaluate the operand expression (e.g., "age > 30") using the data
-        return eval(ast_node.value, {}, data)
+
+    elif ast_node.node_type == "operand":
+        # Parse the condition to extract attribute, operator, and value
+        attribute, operator, value = parse_operand(ast_node.value)
+        # Compare the extracted values using the provided data
+        return compare(attribute, operator, value, data)
 
     raise ValueError("Invalid AST node type")
+
 
 
 def parse_operand(condition):
