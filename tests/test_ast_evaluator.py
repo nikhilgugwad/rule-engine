@@ -19,5 +19,12 @@ class TestRuleEvaluation(unittest.TestCase):
         self.assertTrue(evaluate_rule(combined_rule, data1))
         self.assertFalse(evaluate_rule(combined_rule, data2))
 
+    def test_evaluate_rule_with_different_data(self):
+        rule = create_rule_ast("age > 30")
+        data1 = {"age": 31}
+        data2 = {"age": 30}
+        self.assertTrue(evaluate_rule(rule, data1))
+        self.assertFalse(evaluate_rule(rule, data2))
+
 if __name__ == '__main__':
     unittest.main()

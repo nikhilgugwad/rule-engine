@@ -1,26 +1,28 @@
 def evaluate_rule(ast_node, data):
     """
-    Evaluate the AST node against the provided data.
+    Recursively evaluate the given AST node against the provided data.
 
     Args:
-        ast_node (ASTNode): The root node of the AST representing the rule.
-        data (dict): Dictionary containing attributes (e.g., {"age": 35, "department": "Sales"}).
+        ast_node (ASTNode): The AST node to evaluate.
+        data (dict): The data to evaluate the rule against.
 
     Returns:
-        bool: True if the data satisfies the rule, False otherwise.
+        bool: True if the rule matches the data, otherwise False.
     """
-    if ast_node.node_type == "operator":
+    if ast_node.node_type == "operator":  # Use dot notation
+        left_result = evaluate_rule(ast_node.left, data)
+        right_result = evaluate_rule(ast_node.right, data)
+
         if ast_node.value == "AND":
-            return evaluate_rule(ast_node.left, data) and evaluate_rule(ast_node.right, data)
+            return left_result and right_result
         elif ast_node.value == "OR":
-            return evaluate_rule(ast_node.left, data) or evaluate_rule(ast_node.right, data)
+            return left_result or right_result
+    elif ast_node.node_type == "operand":  # Use dot notation
+        # Evaluate the operand expression (e.g., "age > 30") using the data
+        return eval(ast_node.value, {}, data)
 
-    elif ast_node.node_type == "operand":
-        attribute, operator, value = parse_operand(ast_node.value)
-        return compare(attribute, operator, value, data)
+    raise ValueError("Invalid AST node type")
 
-    else:
-        raise ValueError(f"Invalid node type: {ast_node.node_type}")
 
 def parse_operand(condition):
     """
@@ -35,6 +37,11 @@ def parse_operand(condition):
     parts = condition.split()
     attribute = parts[0]
     operator = parts[1]
+
+    # Convert '=' to '=='
+    if operator == '=':
+        operator = '=='
+        
     value = int(parts[2]) if parts[2].isdigit() else parts[2].strip("'")
     return attribute, operator, value
 
